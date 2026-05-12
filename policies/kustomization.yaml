@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Namespace where all resources will be created
+namespace: gh-policy
+
+# Resources to deploy
+resources:
+- namespace.yaml
+- policy-namespace.yaml
+- placement.yaml
+- placementbinding.yaml
+
+# Ensure namespace is created first
+commonLabels:
+  app: global-hub-policies

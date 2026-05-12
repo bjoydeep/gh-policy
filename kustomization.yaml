@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# This is the root kustomization for the entire repo
+# Use this to deploy the policies directory
+
+resources:
+- policies/
+
+# Add common metadata
+commonLabels:
+  managed-by: global-hub
+  policy-set: gh-namespace-policies

@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: namespace-policy-app
+  namespace: openshift-gitops
+  labels:
+    app: global-hub-policies
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/bjoydeep/gh-policy.git  # Update this with your Git repo URL
+    targetRevision: main
+    path: policies
+  destination:
+    server: https://api.jbanerje-jbgh-rh-626.dev09.red-chesterfield.com:6443  # mh-01 cluster
+    namespace: gh-policy
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

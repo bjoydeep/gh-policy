@@ -1,0 +1,13 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: policy-namespace-binding
+  namespace: gh-policy
+placementRef:
+  name: policy-namespace-placement
+  kind: Placement
+  apiGroup: cluster.open-cluster-management.io
+subjects:
+- name: policy-namespace
+  kind: Policy
+  apiGroup: policy.open-cluster-management.io

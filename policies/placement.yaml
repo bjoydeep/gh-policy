@@ -1,0 +1,16 @@
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: policy-namespace-placement
+  namespace: gh-policy
+spec:
+  predicates:
+  - requiredClusterSelector:
+      labelSelector:
+        matchLabels:
+          name: jb-mc-01
+  tolerations:
+  - key: cluster.open-cluster-management.io/unreachable
+    operator: Exists
+  - key: cluster.open-cluster-management.io/unavailable
+    operator: Exists
