@@ -50,7 +50,7 @@ deploy_acm_integration() {
     log "Deploying ACM-ArgoCD integration resources..."
 
     # Deploy ManagedClusterSetBinding and GitOpsCluster
-    oc apply -f acm-integration/
+    oc apply -f setup/acm-integration/
 
     # Wait for placement to be satisfied
     log "Waiting for placement to be satisfied..."
@@ -64,41 +64,57 @@ deploy_acm_integration() {
     fi
 }
 
-deploy_argocd_app() {
-    log "Deploying ArgoCD application..."
+deploy_argocd_apps() {
+    log "Deploying ArgoCD applications..."
 
-    # Deploy the ArgoCD application
-    oc apply -f argocd/namespace-policy-app.yaml
+    # Deploy hub policies application (to Global Hub)
+    log "Deploying hub policies application..."
+    oc apply -f argocd/hub-policies-app.yaml
 
-    # Wait for sync to complete
-    log "Waiting for ArgoCD application to sync..."
-    timeout 180s bash -c 'while [[ $(oc get applications.argoproj.io namespace-policy-app -n openshift-gitops -o jsonpath="{.status.sync.status}" 2>/dev/null) != "Synced" ]]; do sleep 10; done'
+    # Deploy cluster policies application (to mh-01)
+    log "Deploying cluster policies application for mh-01..."
+    oc apply -f argocd/mh-01-cluster-policies.yaml
 
-    # Check health status
-    if [[ $(oc get applications.argoproj.io namespace-policy-app -n openshift-gitops -o jsonpath="{.status.health.status}") == "Healthy" ]]; then
-        log "ArgoCD application deployment successful ✓"
+    # Wait for hub policies sync to complete
+    log "Waiting for hub policies application to sync..."
+    timeout 180s bash -c 'while [[ $(oc get applications.argoproj.io hub-policies -n openshift-gitops -o jsonpath="{.status.sync.status}" 2>/dev/null) != "Synced" ]]; do sleep 10; done'
+
+    # Wait for cluster policies sync to complete
+    log "Waiting for cluster policies application to sync..."
+    timeout 180s bash -c 'while [[ $(oc get applications.argoproj.io mh-01-cluster-policies -n openshift-gitops -o jsonpath="{.status.sync.status}" 2>/dev/null) != "Synced" ]]; do sleep 10; done'
+
+    # Check health status of both apps
+    if [[ $(oc get applications.argoproj.io hub-policies -n openshift-gitops -o jsonpath="{.status.health.status}") == "Healthy" ]] && \
+       [[ $(oc get applications.argoproj.io mh-01-cluster-policies -n openshift-gitops -o jsonpath="{.status.health.status}") == "Healthy" ]]; then
+        log "ArgoCD applications deployment successful ✓"
     else
-        error "ArgoCD application deployment failed"
+        error "ArgoCD applications deployment failed"
     fi
 }
 
 show_status() {
     log "Deployment Status Summary:"
     echo
-    echo "🎯 ArgoCD Application:"
-    oc get applications.argoproj.io namespace-policy-app -n openshift-gitops
+    echo "🎯 ArgoCD Applications:"
+    oc get applications.argoproj.io hub-policies mh-01-cluster-policies -n openshift-gitops
     echo
-    echo "📦 Synced Resources:"
-    oc get applications.argoproj.io namespace-policy-app -n openshift-gitops -o jsonpath='{.status.operationState.syncResult.resources[*].kind}' | tr ' ' '\n' | sort | uniq
+    echo "📦 Hub Policies Synced Resources:"
+    oc get applications.argoproj.io hub-policies -n openshift-gitops -o jsonpath='{.status.operationState.syncResult.resources[*].kind}' 2>/dev/null | tr ' ' '\n' | sort | uniq
+    echo
+    echo "📦 Cluster Policies Synced Resources:"
+    oc get applications.argoproj.io mh-01-cluster-policies -n openshift-gitops -o jsonpath='{.status.operationState.syncResult.resources[*].kind}' 2>/dev/null | tr ' ' '\n' | sort | uniq
     echo
     log "Next steps:"
-    echo "1. Verify policy deployment on mh-01:"
+    echo "1. Verify hub policies deployment to managed hubs:"
+    echo "   oc get policy -n hub-policies"
+    echo
+    echo "2. Verify cluster policies deployment on mh-01:"
     echo "   kubectl --kubeconfig=/path/to/mh-01-kubeconfig.yaml get policy policy-namespace -n gh-policy"
     echo
-    echo "2. If placement shows 'No valid ManagedClusterSetBindings found', apply on mh-01:"
-    echo "   kubectl --kubeconfig=/path/to/mh-01-kubeconfig.yaml apply -f managed-hub-setup/"
+    echo "3. If placement shows 'No valid ManagedClusterSetBindings found', apply on mh-01:"
+    echo "   kubectl --kubeconfig=/path/to/mh-01-kubeconfig.yaml apply -f setup/managed-hub-setup/"
     echo
-    echo "3. Verify policy distribution to jb-mc-01:"
+    echo "4. Verify policy distribution to managed clusters:"
     echo "   kubectl --kubeconfig=/path/to/mh-01-kubeconfig.yaml get placementdecision -n gh-policy"
 }
 
@@ -109,7 +125,7 @@ main() {
 
     check_prereq
     deploy_acm_integration
-    deploy_argocd_app
+    deploy_argocd_apps
     show_status
 
     log "Deployment completed successfully! 🎉"

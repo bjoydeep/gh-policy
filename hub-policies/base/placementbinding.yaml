@@ -1,0 +1,13 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: hub-policy-binding
+  namespace: hub-policies
+placementRef:
+  name: hub-policy-placement
+  kind: Placement
+  apiGroup: cluster.open-cluster-management.io
+subjects:
+- name: hub-network-policy
+  kind: Policy
+  apiGroup: policy.open-cluster-management.io

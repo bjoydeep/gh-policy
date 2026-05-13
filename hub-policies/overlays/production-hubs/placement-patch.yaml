@@ -1,0 +1,12 @@
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: hub-policy-placement
+  namespace: hub-policies
+spec:
+  predicates:
+  - requiredClusterSelector:
+      labelSelector:
+        matchLabels:
+          feature.open-cluster-management.io/addon-policy-controller: available
+          environment: production  # Only target production managed hubs

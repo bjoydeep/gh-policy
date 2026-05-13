@@ -1,19 +1,22 @@
+# Template for adding new managed hubs
+# Copy this file and replace MANAGED_HUB_NAME with actual hub name
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mh-01-cluster-policies
+  name: MANAGED_HUB_NAME-cluster-policies
   namespace: openshift-gitops
   labels:
     app: global-hub-policies
-    target-hub: mh-01
+    target-hub: MANAGED_HUB_NAME
 spec:
   project: default
   source:
     repoURL: https://github.com/bjoydeep/gh-policy.git
     targetRevision: main
-    path: cluster-policies/base
+    path: cluster-policies/base  # Or use overlays/production-clusters
   destination:
-    name: mh-01  # Cleaner than cluster-proxy URL
+    name: MANAGED_HUB_NAME  # Replace with actual managed hub name
     namespace: gh-policy
   syncPolicy:
     automated:
