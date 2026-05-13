@@ -7,6 +7,7 @@ namespace: gh-policy
 # Resources to deploy
 resources:
 - namespace.yaml
+- managedclustersetbinding.yaml
 - policy-namespace.yaml
 - placement.yaml
 - placementbinding.yaml

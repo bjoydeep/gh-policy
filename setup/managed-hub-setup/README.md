@@ -1,28 +1,33 @@
 # Managed Hub Setup
 
-This directory contains resources that must be applied **on the managed hub** (mh-01) for policy distribution to work correctly.
+This directory contains resources that must be applied **on the managed hub** to enable ArgoCD to manage ManagedClusterSetBindings automatically.
 
-## Why This is Needed
+## Two Approaches
 
-The policy distribution flow requires **two-level ManagedClusterSetBindings**:
+### Current Approach: ArgoCD-Managed (Recommended)
 
-1. **Global Hub** (`acm-integration/`): Exposes managed hubs to ArgoCD
-2. **Managed Hub** (this directory): Exposes managed clusters to policy placement
-
-## Usage
-
-**On the managed hub (mh-01):**
+ArgoCD automatically creates the ManagedClusterSetBinding on the managed hub. **Only RBAC setup required:**
 
 ```bash
-# Check what ManagedClusterSet your managed clusters belong to
-oc get managedclusterset
-oc get managedcluster jb-mc-01 -o jsonpath='{.metadata.labels.cluster\.open-cluster-management\.io/clusterset}'
-
-# Update the managedclustersetbinding-managed-hub.yaml with the correct clusterset name
-# Then apply:
-oc apply -f managedclustersetbinding-managed-hub.yaml
+# On managed hub (mh-01):
+oc apply -f argocd-rbac-for-managed-hub.yaml
 ```
+
+### Legacy Approach: Manual (Archived)
+
+```bash
+# Manual approach (no longer needed):
+# oc apply -f managedclustersetbinding-managed-hub.yaml
+```
+
+## Why RBAC is Needed
+
+ArgoCD runs on Global Hub but deploys to managed hubs via cluster-proxy. The RBAC enables ArgoCD to:
+
+1. Create policies, placements, and placementbindings
+2. **Create ManagedClusterSetBinding** (requires special `managedclustersets/bind` permission)
 
 ## Files
 
-- `managedclustersetbinding-managed-hub.yaml` - Binds the managed cluster's clusterset to the policy namespace
+- `argocd-rbac-for-managed-hub.yaml` - RBAC for ArgoCD to manage all policy resources including ManagedClusterSetBinding
+- `managedclustersetbinding-managed-hub.yaml` - Legacy manual approach (archived)

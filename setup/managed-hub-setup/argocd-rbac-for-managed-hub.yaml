@@ -1,7 +1,11 @@
+# RBAC for ArgoCD on managed hubs
+# This needs to be applied ON THE MANAGED HUB (mh-01)
+# to allow ArgoCD (via cluster-proxy) to create ManagedClusterSetBindings
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: argocd-acm-policy-manager
+  name: argocd-managed-hub-policy-manager
 rules:
 - apiGroups:
   - policy.open-cluster-management.io
@@ -33,13 +37,6 @@ rules:
   - cluster.open-cluster-management.io
   resources:
   - managedclusters
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - cluster.open-cluster-management.io
-  resources:
   - managedclustersets
   verbs:
   - get
@@ -67,12 +64,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: argocd-acm-policy-manager
+  name: argocd-managed-hub-policy-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: argocd-acm-policy-manager
+  name: argocd-managed-hub-policy-manager
 subjects:
-- kind: ServiceAccount
-  name: openshift-gitops-argocd-application-controller
-  namespace: openshift-gitops
+- kind: User
+  name: system:open-cluster-management:cluster:mh-01:addon:application-manager:agent:application-manager
+  apiGroup: rbac.authorization.k8s.io
