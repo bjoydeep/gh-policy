@@ -12,7 +12,7 @@ spec:
     targetRevision: main
     path: policies
   destination:
-    server: https://api.jbanerje-jbgh-rh-626.dev09.red-chesterfield.com:6443  # mh-01 cluster
+    server: https://cluster-proxy-addon-user.multicluster-engine.svc.cluster.local:9092/mh-01  # mh-01 via ACM cluster-proxy
     namespace: gh-policy
   syncPolicy:
     automated:

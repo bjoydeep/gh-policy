@@ -1,0 +1,11 @@
+# ManagedClusterSetBinding for Managed Hub
+# This file needs to be applied on the MANAGED HUB (mh-01)
+# to allow policies to target managed clusters
+
+apiVersion: cluster.open-cluster-management.io/v1beta2
+kind: ManagedClusterSetBinding
+metadata:
+  name: default  # Update this to match the clusterset that jb-mc-01 belongs to
+  namespace: gh-policy
+spec:
+  clusterSet: default  # Update this to match the clusterset that jb-mc-01 belongs to
