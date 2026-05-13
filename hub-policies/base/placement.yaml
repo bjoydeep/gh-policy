@@ -8,7 +8,7 @@ spec:
   - requiredClusterSelector:
       labelSelector:
         matchLabels:
-          # Target managed hubs - they have ACM policy controller
-          feature.open-cluster-management.io/addon-policy-controller: available
+          # Target managed hubs - they have ACM governance policy framework
+          feature.open-cluster-management.io/addon-governance-policy-framework: available
           # Target specific hub
           name: mh-01
