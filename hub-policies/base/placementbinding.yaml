@@ -11,3 +11,6 @@ subjects:
 - name: hub-network-policy
   kind: Policy
   apiGroup: policy.open-cluster-management.io
+- name: hub-namespace-policy
+  kind: Policy
+  apiGroup: policy.open-cluster-management.io

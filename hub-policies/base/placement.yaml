@@ -10,5 +10,5 @@ spec:
         matchLabels:
           # Target managed hubs - they have ACM policy controller
           feature.open-cluster-management.io/addon-policy-controller: available
-          # Optionally filter by specific hub
-          # name: mh-01
+          # Target specific hub
+          name: mh-01

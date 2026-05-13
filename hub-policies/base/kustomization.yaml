@@ -4,5 +4,6 @@ kind: Kustomization
 resources:
 - namespace.yaml
 - hub-network-policy.yaml
+- hub-namespace-policy.yaml
 - placement.yaml
 - placementbinding.yaml
